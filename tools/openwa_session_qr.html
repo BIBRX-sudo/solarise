@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OpenWA WhatsApp QR Code (Live Sync)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #0c1317;
+      color: #e9edef;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .card {
+      background: #1f2c34;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 6px;
+      color: #00a884;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #8696a0;
+      margin-bottom: 20px;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #003a2f;
+      color: #25d366;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #25d366;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #25d366;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; transform: scale(0.9); }
+    }
+    .qr-container {
+      background: #ffffff;
+      padding: 14px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    img#qr-image {
+      display: block;
+      width: 280px;
+      height: 280px;
+      border-radius: 4px;
+    }
+    .refresh-info {
+      font-size: 12px;
+      color: #8696a0;
+      margin-bottom: 20px;
+    }
+    .steps {
+      background: #111b21;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #d1d7db;
+    }
+    .steps ol {
+      padding-left: 20px;
+    }
+    .session-meta {
+      margin-top: 16px;
+      font-size: 11px;
+      color: #667781;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Link WhatsApp Account</h1>
+    <p class="subtitle">Solarise Bot - OpenWA Web Gateway</p>
+
+    <div class="status-badge">
+      <span class="pulse-dot"></span>
+      <span id="badge-text">QR Ready &bull; Auto-Refreshing</span>
+    </div>
+
+    <div class="qr-container">
+      <img id="qr-image" src="../openwa_session_qr.png" alt="OpenWA WhatsApp QR Code" />
+    </div>
+
+    <div class="refresh-info">
+      Live sync active &bull; Refreshed at <span id="last-updated">just now</span>
+    </div>
+
+    <div class="steps">
+      <ol>
+        <li>Open <strong>WhatsApp</strong> on your mobile phone.</li>
+        <li>Tap <strong>Settings</strong> (iOS) or <strong>Menu &vellip;</strong> (Android) &gt; <strong>Linked Devices</strong>.</li>
+        <li>Tap <strong>Link a Device</strong>.</li>
+        <li>Point your camera at this QR code to scan.</li>
+      </ol>
+    </div>
+
+    <div class="session-meta">
+      Session: <code>b9290ec0-2954-4be2-a32d-111512c06f7e</code>
+    </div>
+  </div>
+
+  <script>
+    const qrImg = document.getElementById('qr-image');
+    const lastUpdatedSpan = document.getElementById('last-updated');
+
+    function refreshQR() {
+      const now = new Date();
+      qrImg.src = '../openwa_session_qr.png?t=' + now.getTime();
+      lastUpdatedSpan.textContent = now.toLocaleTimeString();
+    }
+
+    // Refresh every 3 seconds to keep perfectly in sync with OpenWA
+    setInterval(refreshQR, 3000);
+  </script>
+</body>
+</html>

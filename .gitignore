@@ -1,0 +1,43 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+!.env.production.template
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases
+*.db
+*.sqlite3
+solarise_leads.db
+
+# Backups and archives
+backups/
+*.zip
+*.tar.gz
+*.tgz
+*.bak
+
+# OpenWA session and WhatsApp runtime artifacts
+openwa_data/
+openwa_session_qr.png
+qr_status.json
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

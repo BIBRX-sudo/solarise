@@ -1,0 +1,614 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solarise Odisha | Lead Management</title>
+<style>
+:root {
+    --green: #405b43;
+    --green-dark: #2d4631;
+    --bg: #f5f5f1;
+    --border: #e3e6dd;
+    --muted: #70766e;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 26px;
+    background: var(--bg);
+    color: #292e29;
+    font-family: Arial, Helvetica, sans-serif;
+}
+button, input, select { font: inherit; }
+button, select { cursor: pointer; }
+button:disabled { opacity: .6; cursor: wait; }
+.container { max-width: 1400px; margin: auto; }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+.brand { display: flex; align-items: center; gap: 13px; }
+.logo {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--green);
+    color: white;
+    font-size: 25px;
+}
+h1 { margin: 0 0 7px; font-size: 27px; }
+.subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+button {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: white;
+}
+.primary { background: var(--green); color: white; border-color: var(--green); }
+.primary:hover { background: var(--green-dark); }
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+.stat, .panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+.stat { padding: 20px; }
+.stat p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+.number { font-size: 31px; font-weight: 700; }
+.panel { margin-bottom: 22px; overflow: hidden; }
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 19px 20px;
+    border-bottom: 1px solid var(--border);
+}
+h2 { margin: 0 0 6px; font-size: 19px; }
+.description { margin: 0; color: var(--muted); font-size: 13px; }
+.form-body { padding: 20px; }
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field label { font-size: 13px; font-weight: 600; }
+input, select {
+    width: 100%;
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid #d9ddd4;
+    border-radius: 7px;
+    background: white;
+}
+.form-actions { margin-top: 17px; display: flex; gap: 10px; flex-wrap: wrap; }
+.filters { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+#searchInput { width: 230px; }
+.notice { padding: 0 20px; font-size: 13px; }
+.notice:empty { display: none; }
+.notice.success { color: #28643b; }
+.notice.error { color: #a12f2f; }
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+th, td { padding: 14px 16px; border-bottom: 1px solid #eceee8; }
+th {
+    background: #f8f9f5;
+    color: #626a60;
+    font-size: 11px;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+td { font-size: 13px; }
+tbody tr:hover { background: #fafbf8; }
+tbody tr:last-child td { border-bottom: none; }
+.customer-name { font-weight: 600; }
+.property { text-transform: capitalize; }
+.status-controls { display: flex; align-items: center; gap: 7px; }
+.status-select { min-width: 115px; padding: 8px; font-size: 12px; }
+.save-button { padding: 8px 10px; background: var(--green); color: white; border: 0; font-size: 12px; }
+.empty {
+    padding: 38px 20px;
+    color: var(--muted);
+    text-align: center;
+    white-space: normal;
+}
+.footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+}
+@media (max-width: 850px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 550px) {
+    body { padding: 14px; }
+    h1 { font-size: 22px; }
+    .stat { padding: 14px; }
+    .number { font-size: 26px; }
+    #searchInput { width: 100%; }
+    .filters { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <div class="brand">
+        <div class="logo" aria-hidden="true">☀</div>
+        <div>
+            <h1>Solarise Odisha</h1>
+            <p class="subtitle">ADP Green Energy Solutions · Lead Management</p>
+        </div>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="primary" id="refreshButton" type="button">↻ Refresh Leads</button>
+        <button id="logoutButton" type="button" style="display: none;">Log Out</button>
+    </div>
+</header>
+
+<section class="panel" id="loginPanel">
+    <div class="panel-header">
+        <div>
+            <h2>Admin Login</h2>
+            <p class="description">Enter the Admin API key to authenticate and access protected leads.</p>
+        </div>
+    </div>
+    <div class="form-body">
+        <form id="loginForm">
+            <div class="form-grid" style="grid-template-columns: minmax(0, 1fr) auto; align-items: end;">
+                <div class="field">
+                    <label for="adminApiKey">Admin API Key</label>
+                    <input id="adminApiKey" name="admin_api_key" type="password" required placeholder="Enter Admin API Key" autocomplete="current-password">
+                </div>
+                <div class="field">
+                    <button class="primary" id="loginButton" type="submit">Log In</button>
+                </div>
+            </div>
+            <p id="loginNotice" class="notice" role="status" aria-live="polite" style="padding: 12px 0 0;"></p>
+        </form>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat"><p>Total Leads</p><div class="number" id="totalCount">—</div></div>
+    <div class="stat"><p>New Leads</p><div class="number" id="newCount">—</div></div>
+    <div class="stat"><p>Contacted</p><div class="number" id="contactedCount">—</div></div>
+    <div class="stat"><p>Converted</p><div class="number" id="convertedCount">—</div></div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Add Customer Lead</h2>
+            <p class="description">Record a new solar enquiry manually.</p>
+        </div>
+    </div>
+    <div class="form-body">
+        <form id="leadForm">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="customerName">Customer name</label>
+                    <input id="customerName" name="name" required minlength="2" maxlength="100" placeholder="Enter full name">
+                </div>
+                <div class="field">
+                    <label for="propertyType">Property type</label>
+                    <select id="propertyType" name="property_type" required>
+                        <option value="home">Home</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="location">City or district</label>
+                    <input id="location" name="location" required minlength="2" maxlength="150" placeholder="e.g. Bhubaneswar">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="primary" id="addButton" type="submit">+ Add Lead</button>
+                <button type="reset">Clear Form</button>
+            </div>
+        </form>
+        <p id="formNotice" class="notice" role="status" aria-live="polite"></p>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Customer Enquiries</h2>
+            <p class="description">Search enquiries and update their status.</p>
+        </div>
+        <div class="filters">
+            <input id="searchInput" type="search" placeholder="Search name, location or ID" aria-label="Search leads">
+            <select id="statusFilter" aria-label="Filter by status">
+                <option value="All">All statuses</option>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Converted">Converted</option>
+            </select>
+        </div>
+    </div>
+    <p id="notice" class="notice" role="status" aria-live="polite"></p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th><th>Customer</th><th>Property</th>
+                    <th>Location</th><th>Status</th><th>Created At</th>
+                </tr>
+            </thead>
+            <tbody id="leadRows">
+                <tr><td colspan="6" class="empty">Loading leads...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">
+        <span id="resultCount">Loading records...</span>
+        <span id="lastUpdated">Not refreshed yet</span>
+    </div>
+</section>
+
+</div>
+
+<script>
+const API_BASE = (window.location.protocol === "http:" || window.location.protocol === "https:")
+    ? window.location.origin
+    : "http://127.0.0.1:8009";
+const TOKEN_KEY = "solarise_access_token";
+let authToken = localStorage.getItem(TOKEN_KEY) || localStorage.getItem("authToken") || localStorage.getItem("access_token") || null;
+
+function getAuthHeaders() {
+    return authToken ? { "Authorization": `Bearer ${authToken}` } : {};
+}
+
+function setAuthUI(isLoggedIn) {
+    const loginPanel = $("loginPanel");
+    const logoutBtn = $("logoutButton");
+    if (loginPanel) {
+        loginPanel.style.display = isLoggedIn ? "none" : "block";
+    }
+    if (logoutBtn) {
+        logoutBtn.style.display = isLoggedIn ? "inline-block" : "none";
+    }
+}
+
+function handleAuthRequired(message = "Authentication required. Please log in with your Admin API key.") {
+    authToken = null;
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("access_token");
+    setAuthUI(false);
+    showNotice("loginNotice", message, "error");
+    showNotice("notice", message, "error");
+    showEmpty("Authentication required. Please log in above to access customer leads.");
+}
+
+const STATUSES = ["New", "Contacted", "Converted"];
+let leads = [];
+let isLoading = false;
+
+const $ = id => document.getElementById(id);
+
+function showNotice(id, message, type = "") {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = message;
+    el.className = "notice " + type;
+}
+
+function makeCell(value, className = "") {
+    const td = document.createElement("td");
+    td.textContent = value == null ? "—" : String(value);
+    if (className) td.className = className;
+    return td;
+}
+
+function updateStatistics() {
+    $("totalCount").textContent = leads.length;
+    $("newCount").textContent = leads.filter(x => x.status === "New").length;
+    $("contactedCount").textContent = leads.filter(x => x.status === "Contacted").length;
+    $("convertedCount").textContent = leads.filter(x => x.status === "Converted").length;
+}
+
+function showEmpty(message) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6;
+    td.className = "empty";
+    td.textContent = message;
+    tr.appendChild(td);
+    $("leadRows").replaceChildren(tr);
+}
+
+function renderLeads() {
+    const search = $("searchInput").value.trim().toLowerCase();
+    const status = $("statusFilter").value;
+
+    const filtered = leads.filter(lead => {
+        const statusMatch = status === "All" || lead.status === status;
+        const searchMatch = [
+            lead.name, lead.location, lead.id, lead.property_type
+        ].some(value => String(value ?? "").toLowerCase().includes(search));
+        return statusMatch && searchMatch;
+    });
+
+    $("leadRows").replaceChildren();
+
+    if (!filtered.length) {
+        showEmpty(leads.length ? "No matching leads. Try another search or filter." : "No leads found.");
+        $("resultCount").textContent = `Showing 0 of ${leads.length} leads`;
+        return;
+    }
+
+    filtered.forEach(lead => {
+        const tr = document.createElement("tr");
+        tr.appendChild(makeCell(lead.id));
+        tr.appendChild(makeCell(lead.name, "customer-name"));
+        tr.appendChild(makeCell(lead.property_type, "property"));
+        tr.appendChild(makeCell(lead.location));
+
+        const statusCell = document.createElement("td");
+        const controls = document.createElement("div");
+        controls.className = "status-controls";
+
+        const select = document.createElement("select");
+        select.className = "status-select";
+        select.setAttribute("aria-label", `Status for lead ${lead.id}`);
+
+        STATUSES.forEach(value => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+
+        select.value = STATUSES.includes(lead.status) ? lead.status : "New";
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "save-button";
+        button.textContent = "Save";
+        button.addEventListener("click", () => saveStatus(lead, select, button));
+
+        controls.append(select, button);
+        statusCell.appendChild(controls);
+        tr.appendChild(statusCell);
+        tr.appendChild(makeCell(lead.created_at || "—"));
+        $("leadRows").appendChild(tr);
+    });
+
+    $("resultCount").textContent = `Showing ${filtered.length} of ${leads.length} leads`;
+}
+
+async function loadLeads() {
+    if (!authToken) {
+        setAuthUI(false);
+        showEmpty("Please log in above with the Admin API key to view leads.");
+        return;
+    }
+
+    if (isLoading) return;
+    isLoading = true;
+    $("refreshButton").disabled = true;
+    $("refreshButton").textContent = "Loading...";
+
+    try {
+        const response = await fetch(`${API_BASE}/leads`, {
+            headers: getAuthHeaders()
+        });
+        if (response.status === 401) {
+            handleAuthRequired("Invalid or expired session. Please log in again.");
+            return;
+        }
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.detail || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!Array.isArray(data.leads)) throw new Error("Unexpected API response");
+
+        leads = data.leads;
+        updateStatistics();
+        renderLeads();
+        showNotice("notice", `Loaded ${leads.length} lead(s).`, "success");
+        $("lastUpdated").textContent = "Last refreshed: " + new Date().toLocaleTimeString();
+    } catch (error) {
+        showNotice("notice", `Could not load leads: ${error.message}. Check FastAPI and CORS settings.`, "error");
+        if (!leads.length) showEmpty("Start the backend and refresh this page.");
+    } finally {
+        isLoading = false;
+        $("refreshButton").disabled = false;
+        $("refreshButton").textContent = "↻ Refresh Leads";
+    }
+}
+
+async function saveStatus(lead, select, button) {
+    const oldStatus = lead.status;
+    const newStatus = select.value;
+
+    if (!STATUSES.includes(newStatus)) {
+        showNotice("notice", "Please select a valid status.", "error");
+        return;
+    }
+    if (newStatus === oldStatus) {
+        showNotice("notice", "No status change to save.");
+        return;
+    }
+
+    select.disabled = true;
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+        const response = await fetch(`${API_BASE}/leads/${encodeURIComponent(lead.id)}/status`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders()
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (response.status === 401) {
+            select.value = oldStatus;
+            handleAuthRequired("Session expired while updating status. Please log in again.");
+            return;
+        }
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.detail || `HTTP ${response.status}`);
+
+        lead.status = result.new_status;
+        updateStatistics();
+        showNotice("notice", `Lead #${lead.id} updated to ${lead.status}.`, "success");
+        renderLeads();
+    } catch (error) {
+        select.value = oldStatus;
+        showNotice("notice", `Status update failed: ${error.message}`, "error");
+    } finally {
+        select.disabled = false;
+        button.disabled = false;
+        button.textContent = "Save";
+    }
+}
+
+$("leadForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const button = $("addButton");
+    button.disabled = true;
+    button.textContent = "Saving...";
+    showNotice("formNotice", "Saving new customer lead...");
+
+    const payload = {
+        name: $("customerName").value.trim(),
+        property_type: $("propertyType").value,
+        location: $("location").value.trim()
+    };
+
+    try {
+        const response = await fetch(`${API_BASE}/leads`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders()
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.status === 401) {
+            handleAuthRequired("Session expired while adding lead. Please log in again.");
+            return;
+        }
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.detail || `HTTP ${response.status}`);
+
+        $("leadForm").reset();
+        showNotice("formNotice", "Customer lead added successfully!", "success");
+        await loadLeads();
+    } catch (error) {
+        showNotice("formNotice", `Could not add lead: ${error.message}. Check the backend and CORS settings.`, "error");
+    } finally {
+        button.disabled = false;
+        button.textContent = "+ Add Lead";
+    }
+});
+
+$("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const apiKeyInput = $("adminApiKey");
+    const apiKey = apiKeyInput.value.trim();
+    if (!apiKey) {
+        showNotice("loginNotice", "Please enter the Admin API key.", "error");
+        return;
+    }
+
+    const button = $("loginButton");
+    button.disabled = true;
+    button.textContent = "Logging in...";
+    showNotice("loginNotice", "Authenticating...");
+
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: "POST",
+            headers: {
+                "x-admin-api-key": apiKey
+            }
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const errorMsg = data.detail || `Login failed (HTTP ${response.status})`;
+            throw new Error(errorMsg);
+        }
+
+        const token = data.access_token;
+        if (!token) {
+            throw new Error("No access token returned from server.");
+        }
+
+        authToken = token;
+        localStorage.setItem(TOKEN_KEY, token);
+        apiKeyInput.value = "";
+        showNotice("loginNotice", "Login successful!", "success");
+        showNotice("notice", "");
+        setAuthUI(true);
+        await loadLeads();
+    } catch (error) {
+        showNotice("loginNotice", error.message || "Invalid Admin API key.", "error");
+    } finally {
+        button.disabled = false;
+        button.textContent = "Log In";
+    }
+});
+
+$("logoutButton").addEventListener("click", () => {
+    authToken = null;
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("access_token");
+    setAuthUI(false);
+    leads = [];
+    updateStatistics();
+    showEmpty("Logged out. Please log in above to access leads.");
+    showNotice("notice", "You have been logged out.");
+    showNotice("loginNotice", "");
+});
+
+$("searchInput").addEventListener("input", renderLeads);
+$("statusFilter").addEventListener("change", renderLeads);
+$("refreshButton").addEventListener("click", loadLeads);
+
+if (authToken) {
+    setAuthUI(true);
+    loadLeads();
+} else {
+    setAuthUI(false);
+    showEmpty("Please log in above with the Admin API key to view leads.");
+}
+</script>
+</body>
+</html>

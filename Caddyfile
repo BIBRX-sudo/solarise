@@ -1,0 +1,30 @@
+# Caddyfile — Production Reverse Proxy for Solarise Odisha
+# Automatically provisions and renews Let's Encrypt / ZeroSSL TLS certificates
+
+{
+    email {$ACME_EMAIL:admin@example.com}
+    admin off
+}
+
+{$DOMAIN:localhost} {
+    # Security response headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+
+    # Block access to database files, hidden dotfiles, and backup archives
+    @blocked path /.* /solarise_leads.db* /backups/* /*.sqlite*
+    respond @blocked 403
+
+    # Route all traffic to the internal FastAPI service on port 8009
+    reverse_proxy fastapi-app:8009 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}

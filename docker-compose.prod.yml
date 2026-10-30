@@ -1,0 +1,88 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: solarise-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:?DOMAIN must be set in .env}
+      - ACME_EMAIL=${ACME_EMAIL:?ACME_EMAIL must be set in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      fastapi-app:
+        condition: service_healthy
+    networks:
+      - solarise-internal
+
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: solarise-fastapi
+    restart: unless-stopped
+    # No public port binding; strictly internal to Caddy reverse proxy
+    environment:
+      - OPENWA_URL=http://openwa-api:2785
+      - OPENWA_SESSION_ID=${OPENWA_SESSION_ID:-b9290ec0-2954-4be2-a32d-111512c06f7e}
+      - OPENWA_API_KEY=${OPENWA_API_KEY:?OPENWA_API_KEY must be set in .env}
+      - ADMIN_API_KEY=${ADMIN_API_KEY:?ADMIN_API_KEY must be set in .env}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:?WEBHOOK_SECRET must be set in .env}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set in .env}
+      - BUSINESS_NUMBER=${BUSINESS_NUMBER:-}
+      - CORS_ALLOWED_ORIGINS=https://${DOMAIN}
+      - ALLOWED_TEST_PHONE=${ALLOWED_TEST_PHONE:-}
+      - LEADS_DB_PATH=/app/solarise_leads.db
+    volumes:
+      - ./solarise_leads.db:/app/solarise_leads.db
+    depends_on:
+      openwa-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8009/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - solarise-internal
+
+  openwa-api:
+    image: ${OPENWA_IMAGE:-openwa-openwa}
+    container_name: solarise-openwa
+    restart: unless-stopped
+    # Port 2785 is strictly private within the internal Docker bridge; zero public exposure
+    environment:
+      - NODE_ENV=production
+      - API_MASTER_KEY=${OPENWA_API_KEY:?OPENWA_API_KEY must be set in .env}
+      - SESSION_DATA_PATH=/app/data/sessions
+      - PORT=2785
+      - AUTO_START_SESSIONS=true
+      - LOG_LEVEL=info
+      - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu
+      - SSRF_ALLOWED_HOSTS=fastapi-app
+    volumes:
+      # Persistent OpenWA data (session auth keys and SQLite databases)
+      - ./openwa_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2785/api/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - solarise-internal
+
+volumes:
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local
+
+networks:
+  solarise-internal:
+    driver: bridge
